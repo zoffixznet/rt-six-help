@@ -1,27 +1,35 @@
 #!/usr/bin/env perl6
 
-my $cmd = qqx{PERL_LWP_SSL_VERIFY_HOSTNAME=0 rt ls -l -f Subject 'queue=perl6 AND (status=new OR status=open)'};
-
 my %tags;
 
 # tags we especially care about.
 my @tags = <
     PRECOMP STAR JVM LHF WEIRD OSX LTA 
-    PERF GLR SEGV UNI POD PATCH 
+    PERF GLR SEGV UNI POD PATCH TESTNEEDED
 >;
+
+my @fields = <
+    CF.{Tag}
+    Subject
+>;
+
+my $cmd = qqx{PERL_LWP_SSL_VERIFY_HOSTNAME=0 rt ls -l -f "@fields.join('","')" 'queue=perl6 AND (status=new OR status=open)'};
 
 sub MAIN {
     my $count = 0;
     for $cmd.lines -> $line {
-        next unless $line ~~ /^ 'Subject:' (.*) /;
-        $count++;
-        my $subject = ~$0;
-        my @matches = $subject ~~ m:g/ '[' (<[A..Za..z ]>+?) ']' /;
-        for @matches -> $match {
-            my $tag = uc ~$match[0];
-            for $tag.words -> $word {
-                %tags{$word}++;
+        if $line ~~ /^ 'Subject:' (.*) / {
+            $count++;
+            my $subject = ~$0;
+            my @matches = $subject ~~ m:g/ '[' (<[A..Za..z ]>+?) ']' /;
+            for @matches -> $match {
+                my $tag = uc ~$match[0];
+                for $tag.words -> $word {
+                    %tags{$word}++;
+                }
             }
+        } elsif $line ~~ /^ 'CF.{Tag}:' .* 'testneeded'/ {
+            %tags<TESTNEEDED>++;
         }
     }
    
