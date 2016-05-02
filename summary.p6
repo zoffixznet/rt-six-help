@@ -6,7 +6,6 @@ my %tags;
 
 # tags we especially care about.
 my @tags = <
-BARF
     PRECOMP STAR JVM LHF WEIRD OSX LTA 
     PERF GLR SEGV UNI POD PATCH 
 >;
