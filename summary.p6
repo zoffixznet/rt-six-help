@@ -11,27 +11,41 @@ my @tags = <
 my @fields = <
     CF.{Tag}
     Subject
+    CF.{VM}
 >;
 
 my $cmd = qqx{PERL_LWP_SSL_VERIFY_HOSTNAME=0 rt ls -l -f "@fields.join('","')" 'queue=perl6 AND (status=new OR status=open)'};
 
+sub add_tags(%record) {
+    for %record.keys -> $key {
+        %tags{$key}++;
+    }
+}
+
 sub MAIN {
     my $count = 0;
+    my %record;
     for $cmd.lines -> $line {
-        if $line ~~ /^ 'Subject:' (.*) / {
+        if $line ~~ /^ '--'/ {
+            add_tags(%record);
+            %record := {};
+        } elsif $line ~~ /^ 'Subject:' (.*) / {
             $count++;
             my $subject = ~$0;
             my @matches = $subject ~~ m:g/ '[' (<[A..Za..z ]>+?) ']' /;
             for @matches -> $match {
                 my $tag = uc ~$match[0];
                 for $tag.words -> $word {
-                    %tags{$word}++;
+                    %record{$word}++;
                 }
             }
         } elsif $line ~~ /^ 'CF.{Tag}:' .* 'testneeded'/ {
-            %tags<TESTNEEDED>++;
+            %record<TESTNEEDED>++;
+        } elsif $line ~~ /^ 'CF.{VM}:' .* 'JVM'/ {
+            %record<JVM>++;
         }
     }
+    add_tags(%record); # get the last one.
    
     my @output = "RT: $count";
 
