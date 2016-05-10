@@ -60,7 +60,7 @@ sub MAIN {
     say "\nRemaining tags, any of interest?";
 
     my @leftovers;
-    for %tags.keys -> $tag {
+    for %tags.keys.sort -> $tag {
         push @leftovers, "{$tag}: {%tags{$tag}}";
     }
     say @leftovers.join("; ");
