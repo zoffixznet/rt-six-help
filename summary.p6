@@ -6,6 +6,7 @@ my %tags;
 my @tags = <
     PRECOMP STAR JVM LHF WEIRD OSX LTA CONC
     PERF GLR SEGV UNI POD PATCH TESTNEEDED
+    NYI TODO RFC
 >;
 
 my @fields = <
