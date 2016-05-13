@@ -13,6 +13,7 @@ my @fields = <
     CF.{Tag}
     Subject
     CF.{VM}
+    CF.{Platform}
 >;
 
 my $cmd = qqx{PERL_LWP_SSL_VERIFY_HOSTNAME=0 rt ls -l -f "@fields.join('","')" 'queue=perl6 AND (status=new OR status=open)'};
@@ -44,6 +45,8 @@ sub MAIN {
             %record<TESTNEEDED>++;
         } elsif $line ~~ /^ 'CF.{VM}:' .* 'JVM'/ {
             %record<JVM>++;
+        } elsif $line ~~ /^ 'CF.{Platform}:' .* 'MacOS X'/ {
+            %record<OSX>++;
         }
     }
     add_tags(%record); # get the last one.
